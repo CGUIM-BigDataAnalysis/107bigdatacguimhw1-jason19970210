@@ -7,6 +7,12 @@ author: 許懿傑
 搞不清楚各行各業的薪資差異嗎? 念研究所到底對第一份工作的薪資影響有多大? CP值高嗎? 透過分析**初任人員平均經常性薪資**- [開放資料連結](https://data.gov.tw/dataset/6647)，可初步了解台灣近幾年各行各業、各學歷的起薪。
 
 ## 比較103年度和106年度大學畢業者的薪資資料
+### 使用 R Markdown
+```{r usingRMearkdown}
+#run in console
+install.packages("rmarkdown")
+install.packages("knitr")
+```
 
 ### 資料匯入與處理
 ```{r dataload}
