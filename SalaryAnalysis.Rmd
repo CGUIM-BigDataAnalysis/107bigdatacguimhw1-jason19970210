@@ -10,7 +10,7 @@ author: 許懿傑
 
 ### 資料匯入與處理
 ```{r dataload}
-library(jsonlite)
+#library(jsonlite)
 library(dplyr)
 #fromjson()
 #inner_join()

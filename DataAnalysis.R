@@ -7,7 +7,7 @@ edu_106 <- read.csv("~/Desktop/三下/BigDataAnalyticalMethods/20190509HW/107big
 
 # 大學薪資
 join_103_106 <- inner_join(edu_103, edu_106, by="大職業別")
-#取column11,column24
+#取`大學薪資`欄位
 join_103_106$大學.薪資.x <- as.numeric(join_103_106$大學.薪資.x)
 join_103_106$大學.薪資.y <- as.numeric(join_103_106$大學.薪資.y)
 join_103_106$percent <- join_103_106$大學.薪資.y / join_103_106$大學.薪資.x
@@ -24,5 +24,5 @@ table(tmp)
 grep("不動產",tmp)
 
 
-sum(str_count(join_103_106$大職業別,"-")) # 全表 `-` 分析數量
+sum(str_count(join_103_106$大職業別,"-")) # `-` 數量
 
