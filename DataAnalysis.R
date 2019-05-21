@@ -1,6 +1,7 @@
 #library(jsonlite)
 library(dplyr)
 library(stringr)
+library(ggplot2)
 
 edu_103_full <- read.csv("/Users/macbook/Desktop/三下/107bigdatacguimhw1-jason19970210/Input/103年各教育程度別初任人員經常性薪資─按大職類分.csv",stringsAsFactors = F)
 edu_104_full <- read.csv("/Users/macbook/Desktop/三下/107bigdatacguimhw1-jason19970210/Input/104年各教育程度別初任人員經常性薪資─按大職類分.csv",stringsAsFactors = F)
@@ -46,3 +47,22 @@ joined_df_103_to_106 <- inner_join(joined_df_103_to_106, df_106, by="大職業�
 # http://rprogramming.net/rename-columns-in-r/
 # names(data) <- c("new_name", "another_new_name")
 names(joined_df_103_to_106) <- c("大職業別","College_f/m_103","College_f/m_104","College_f/m_105","College_f/m_106")
+#joined_df_103_to_106[2:5] <- as.numeric(joined_df_103_to_106[2:5])
+joined_df_103_to_106$`College_f/m_103` <- as.numeric(joined_df_103_to_106$`College_f/m_103`)
+joined_df_103_to_106$`College_f/m_104` <- as.numeric(joined_df_103_to_106$`College_f/m_104`)
+joined_df_103_to_106$`College_f/m_105` <- as.numeric(joined_df_103_to_106$`College_f/m_105`)
+joined_df_103_to_106$`College_f/m_106` <- as.numeric(joined_df_103_to_106$`College_f/m_106`)
+
+# replace `NA` to `0`
+# https://bbs.pinggu.org/thread-3589221-1-1.html
+#dat[is.na(dat)] <- 0
+joined_df_103_to_106[is.na(joined_df_103_to_106)] <- 0
+
+# order the table
+joined_df_103_to_106 <- arrange(joined_df_103_to_106,desc(College_f/m_103))
+
+
+# drawing plots
+# https://zhuanlan.zhihu.com/p/30706019
+# ggplot(data = df, mapping = aes(x = factor(Year), y = Weight, group = 1)) + geom_line() + xlab('Year')
+ggplot(data = joined_df_103_to_106)
