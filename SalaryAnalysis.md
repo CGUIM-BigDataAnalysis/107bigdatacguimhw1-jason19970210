@@ -273,7 +273,7 @@ df <- data.frame(table)
 df <- arrange(df,desc(Freq))
 df
 ```
-Output
+
 Var1|Freq
 ---|---
 用水供應及污染整治業|6
