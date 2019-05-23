@@ -129,7 +129,7 @@ joined_df_103_to_106 %>% arrange(. ,College_f_m_106) %>% filter(. ,College_f_m_1
 # drawing plots
 # https://zhuanlan.zhihu.com/p/30706019
 # ggplot(data = df, mapping = aes(x = factor(Year), y = Weight, group = 1)) + geom_line() + xlab('Year')
-#ggplot(data = joined_df_103_to_106, mapping=aes(x=College_f_m_104,y=College_f_m_103))+geom_line()
+ggplot(data = joined_df_103_to_106, mapping=aes(x="大職業別",y=College_f_m_103))+geom_line()
 
 
 
@@ -189,4 +189,6 @@ joined_df_1_103_to_106 %>% arrange(. ,desc(devide106)) %>% filter(. ,devide106 >
 job <- joined_df_1_103_to_106[c(2,9,23,79),c(1,8,9,13)]
 job$minus106 <- (job$Graduate106 - job$College106)
 job[1:4,c(1,5)]
+
+
 
