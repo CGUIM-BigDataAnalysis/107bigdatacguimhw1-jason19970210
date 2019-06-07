@@ -1,0 +1,122 @@
+---
+title: "107-2 大數據分析方法 作業一"
+output: github_document
+author: B0544222 李丞翊
+---
+
+搞不清楚各行各業的薪資差異嗎? 念研究所到底對第一份工作的薪資影響有多大? CP值高嗎? 透過分析**初任人員平均經常性薪資**- [開放資料連結](https://data.gov.tw/dataset/6647)，可初步了解台灣近幾年各行各業、各學歷的起薪。
+
+## 比較103年度和106年度大學畢業者的薪資資料
+
+### 資料匯入與處理
+```{r dataload}
+library(jsonlite)
+library(dplyr)
+library(readr)
+salary_106<-read_csv("/Users/chris/Downloads/A17000000J-020066-Qod/106年各教育程度別初任人員每人每月經常性薪資─按大職類分.csv")
+salary_103<-read_csv("/Users/chris/Downloads/A17000000J-020066-Qod/103年各教育程度別初任人員經常性薪資─按大職類分.csv")
+salary_106$`大學-薪資`<-as.numeric(salary_106$`大學-薪資`)
+salary_103$`大學-薪資`<-as.numeric(salary_103$`大學-薪資`)
+salary_103$大職業別<-gsub("、","-",salary_103$大職業別)
+New_table<-inner_join(salary_106,salary_103,by="大職業別")
+```
+##### 第二題資料匯入與處理
+```{r }
+sal_103 <- read.csv("/Users/chris/Downloads/A17000000J-020066-Qod/103年各教育程度別初任人員經常性薪資─按大職類分.csv",stringsAsFactors = F)
+sal_104 <- read.csv("/Users/chris/Downloads/A17000000J-020066-Qod/104年各教育程度別初任人員經常性薪資─按大職類分.csv",stringsAsFactors = F)
+sal_105 <- read.csv("/Users/chris/Downloads/A17000000J-020066-Qod/105年各教育程度別初任人員每人每月經常性薪資─按大職類分.csv",stringsAsFactors = F)
+sal_106 <- read.csv("/Users/chris/Downloads/A17000000J-020066-Qod/106年各教育程度別初任人員每人每月經常性薪資─按大職類分.csv",stringsAsFactors = F)
+df_103 <- sal_103[,c(2,12)]
+df_104 <- sal_104[,c(2,12)]
+df_105 <- sal_105[,c(2,12)]
+df_106 <- sal_106[,c(2,12)]
+df_103_106 <- inner_join(df_103, df_104, by="大職業別")
+df_103_106 <- inner_join(df_103_106, df_105, by="大職業別")
+df_103_106 <- inner_join(df_103_106, df_106, by="大職業別")
+names(df_103_106) <- c("大職業別","College_f/m_103","College_f/m_104","College_f/m_105","College_f/m_106")
+df_103_106[is.na(df_103_106)] <- 0
+df_103_106$`College_f/m_103` <- as.numeric(df_103_106$`College_f/m_103`)
+df_103_106$`College_f/m_104` <- as.numeric(df_103_106$`College_f/m_104`)
+df_103_106$`College_f/m_105` <- as.numeric(df_103_106$`College_f/m_105`)
+df_103_106$`College_f/m_106` <- as.numeric(df_103_106$`College_f/m_106`)
+```
+
+### 106年度薪資較103年度薪資高的職業有哪些? 
+```{r compare103106}
+New_table$precent<-(New_table$`大學-薪資.x`/New_table$`大學-薪資.y`)#兩年度相除後得到比例
+New_table<-arrange(New_table,desc(precent)) #依照比例遞減排序
+ex01<-filter(New_table,precent>1) %>% arrange(desc(precent)) #由大到小排序
+head(ex01$大職業別,10) #呈現前十名的資料
+```
+
+### 提高超過5%的的職業有哪些? 
+```{r over5}
+ex01<-filter(ex01,precent>1.05) %>% arrange(desc(precent))#遞減排序顯示超過5％職業
+ex01$大職業別#列出超過5％職業
+```
+* 有 "其他服務業-技術員及助理專業人員"、"住宿及餐飲業-服務及銷售工作人員"、"用水供應及污染整治業-技術員及助理專業人員"、"營造業-服務及銷售工作人員"、"其他服務業-專業人員" (前五名：1.131278、1.129498、1.129402、1.109005、1.103448)
+
+### 主要的職業種別是哪些種類呢?
+```{r mainType}
+filter_1<-ex01[grepl("-",ex01$大職業別),]
+filter_1$new<-strsplit(filter_1$大職業別,"-")
+temp<-strsplit(filter_1$大職業別,"-")
+table(unlist(lapply(temp,"[",1))) ##出現次數
+```
+* 主要為教育服務業(5)、用水供應及污染整治業(5)、資訊及通訊傳播業(5)、服務業部門(4)、其他服務業(4)、營造業(3)、運輸及倉儲業(3)、住宿及餐飲業(3)......等職業種類
+
+## 男女同工不同酬現況分析
+
+男女同工不同酬一直是性別平等中很重要的問題，分析資料來源為103到106年度的大學畢業薪資。
+
+### 103到106年度的大學畢業薪資資料，哪些行業男生薪資比女生薪資多?
+```{r male}
+df_103_106_nor <- arrange(df_103_106,df_103_106$`College_f/m_103`)%>%filter(`College_f/m_103`>0)
+head(df_103_106_nor,10)
+```
+* 取前十筆排序(其他服務業-技術員及助理專業人員、礦業及土石採取業-服務及銷售工作人員、營造業、教育服務業-事務支援人員、教育服務業、其他服務業、礦業及土石採取業、營造業-專業人員、其他服務業-服務及銷售工作人員、營造業-事務支援人員)在 **大學畢業薪資男生比女生多**
+
+
+### 哪些行業女生薪資比男生薪資多? 
+```{r female}
+df_103_106_dec <- arrange(df_103_106,desc(df_103_106$`College_f/m_103`))
+head(df_103_106_dec,10)
+```
+* 在105年度資料中，**金融及保險業-專業人員** 女生薪資比男生多(100.11)
+
+
+## 研究所薪資差異
+
+以106年度的資料來看，哪個職業別念研究所最划算呢 (研究所學歷薪資與大學學歷薪資增加比例最多)?
+ 
+```{r grad}
+salary_106$`大學-薪資`<-as.numeric(salary_106$`大學-薪資`)
+salary_106$`研究所及以上-薪資`<-as.numeric(salary_106$`研究所及以上-薪資`)
+salary_106$precent<-(salary_106$`研究所及以上-薪資`/salary_106$`大學-薪資`)
+salary_106<- arrange(salary_106,desc(precent))
+head(salary_106$大職業別,10)
+```
+
+* 以下是前十筆研究所薪資大於大學薪資(較划算)的職業別：
+**"礦業及土石採取業-事務支援人員"、"專業_科學及技術服務業"、"其他服務業-技術員及助理專業人員"、"專業_科學及技術服務業-事務支援人員"、"批發及零售業"、"製造業"、"藝術_娛樂及休閒服務業-事務支援人員"、"工業部門"、"工業及服務業部門"、"服務業部門"**
+
+
+## 我有興趣的職業別薪資狀況分析
+
+### 有興趣的職業別篩選，呈現薪資
+```{r like}
+ex04<-filter(salary_106,大職業別 %in% c("資訊及通訊傳播業-專業人員","專業_科學及技術服務業-專業人員","金融及保險業-專業人員"))%>%select(大職業別,starts_with("大學-薪資"),starts_with("研究所及以上-薪資"))
+head(ex04)
+```
+
+* 以下是我較有興趣的職業別：**專業_科學及技術服務業-專業人員、資訊及通訊傳播業-專業人員、金融及保險業-專業人員**
+以剛畢業起薪來說，在大學與研究所的薪資是與自己想像中的差不多(當然學歷也會是影響的因素之一)
+
+### 這些職業別研究所薪資與大學薪資差多少呢？
+```{r likeGrad}
+ex04$percent<-round(((ex04$`研究所及以上-薪資`/ex04$`大學-薪資`)-1)*100,2)
+ex04$diff<-ex04$`研究所及以上-薪資`-ex04$`大學-薪資`
+head(ex04)
+```
+* 在diff欄位表示研究所薪資與大學的差異，而percent欄位為兩者差異比例，在我興趣的職業中讀研究所與大學在薪資上有 **14.5%** 以上的差異，至少 **4700元** 的差異
+
